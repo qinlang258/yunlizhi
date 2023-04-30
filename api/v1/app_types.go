@@ -30,10 +30,10 @@ type AppSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of App. Edit app_types.go to remove/update
-	Image     string `json:"image"`
-	AppPort   *int32 `json:"appPort"`
-	AppName   string `json:"appName"`
-	AppDomain string `json:"appDomain"`
+	Image   string `json:"image"`
+	Port    *int32 `json:"port"`
+	Project string `json:"project"`
+	Domain  string `json:"domain"`
 }
 
 // AppStatus defines the observed state of App
@@ -72,6 +72,6 @@ func init() {
 func (in *App) String() string {
 	return fmt.Sprintf("Image [%s], Port [%d], AppName [%s]",
 		in.Spec.Image,
-		*(in.Spec.AppPort),
-		in.Spec.AppName)
+		*(in.Spec.Port),
+		in.Spec.Project)
 }
