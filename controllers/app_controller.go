@@ -22,6 +22,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/utils/pointer"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -267,8 +268,9 @@ func createServiceIfNotExists(ctx context.Context, r *AppReconciler, app *infrav
 		},
 		Spec: corev1.ServiceSpec{
 			Ports: []corev1.ServicePort{{
-				Name: "http",
-				Port: *app.Spec.Port,
+				Name:       "http",
+				Port:       80,
+				TargetPort: intstr.FromInt(80),
 			},
 			},
 			Selector: map[string]string{
