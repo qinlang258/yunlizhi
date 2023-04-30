@@ -1,0 +1,11 @@
+apiVersion: infra.yunlizhi.cn/v1
+kind: App
+metadata:
+  namespace: dev
+  name: yunlizhi-sample
+spec:
+  # Add fields here
+  image: registry.cn-zhangjiakou.aliyuncs.com/jcrose-k8s/tomcat:8
+  port: 8080
+  domain: tomcat.jcrose.com
+  project: tomcat
