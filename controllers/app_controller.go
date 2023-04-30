@@ -189,26 +189,26 @@ func createDeploymentIfNotExists(ctx context.Context, r *AppReconciler, app *inf
 			Replicas: pointer.Int32Ptr(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"app": app.Spec.Project,
+					"app": app.Spec.AppName,
 				},
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app": app.Spec.Project,
+						"app": app.Spec.AppName,
 					},
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
 						{
-							Name:            app.Spec.Project,
+							Name:            app.Spec.AppName,
 							Image:           app.Spec.Image,
 							ImagePullPolicy: "IfNotPresent",
 							Ports: []corev1.ContainerPort{
 								{
 									Name:          "http",
 									Protocol:      corev1.ProtocolTCP,
-									ContainerPort: *app.Spec.Port,
+									ContainerPort: *app.Spec.AppPort,
 								},
 							},
 							Resources: corev1.ResourceRequirements{
@@ -274,7 +274,7 @@ func createServiceIfNotExists(ctx context.Context, r *AppReconciler, app *infrav
 			},
 			},
 			Selector: map[string]string{
-				"app": app.Spec.Project,
+				"app": app.Spec.AppName,
 			},
 			Type: corev1.ServiceTypeNodePort,
 		},
@@ -328,7 +328,7 @@ func createIngressIfNotExists(ctx context.Context, r *AppReconciler, app *infrav
 		IngressClassName: &icn,
 		Rules: []apinetv1.IngressRule{
 			{
-				Host: app.Spec.Domain,
+				Host: app.Spec.AppDomain,
 				IngressRuleValue: apinetv1.IngressRuleValue{
 					HTTP: &apinetv1.HTTPIngressRuleValue{
 						Paths: []apinetv1.HTTPIngressPath{
@@ -339,7 +339,7 @@ func createIngressIfNotExists(ctx context.Context, r *AppReconciler, app *infrav
 									Service: &apinetv1.IngressServiceBackend{
 										Name: app.Name,
 										Port: apinetv1.ServiceBackendPort{
-											Number: *app.Spec.Port,
+											Number: *app.Spec.AppPort,
 										},
 									},
 								},
