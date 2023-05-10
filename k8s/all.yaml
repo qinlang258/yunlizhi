@@ -5,7 +5,8 @@ metadata:
   name: yunlizhi-sample
 spec:
   # Add fields here
-  image: registry.cn-zhangjiakou.aliyuncs.com/jcrose-k8s/nginx:1.18
-  port: 80
-  domain: nginx.jcrose.com
-  project: nginx
+  replicas: 2
+  image: registry.cn-zhangjiakou.aliyuncs.com/jcrose-k8s/tomcat:8
+  port: 8080
+  domain: tomcat.jcrose.com
+  project: tomcat
