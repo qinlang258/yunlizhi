@@ -30,10 +30,11 @@ type AppSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of App. Edit app_types.go to remove/update
-	Image   string `json:"image"`
-	Port    *int32 `json:"port"`
-	Project string `json:"project"`
-	Domain  string `json:"domain"`
+	Replicas *int32 `json:"replicas,omitempty"`
+	Image    string `json:"image,omitempty"`
+	Port     *int32 `json:"port,omitempty"`
+	Project  string `json:"project,omitempty"`
+	Domain   string `json:"domain,omitempty"`
 }
 
 // AppStatus defines the observed state of App
@@ -45,6 +46,9 @@ type AppStatus struct {
 }
 
 //+kubebuilder:object:root=true
+// +kubebuilder:printcolumn:name="Replicas",type="integer",JSONPath=".spec.replicas",description="pod的个数"
+// +kubebuilder:printcolumn:name="Domain",type="string",JSONPath=".spec.domain",description="ingress的域名"
+// +kubebuilder:printcolumn:name="Image",type="string",JSONPath=".spec.image",description="app的镜像地址"
 //+kubebuilder:subresource:status
 
 // App is the Schema for the apps API
