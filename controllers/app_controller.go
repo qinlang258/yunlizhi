@@ -22,8 +22,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
-	"k8s.io/utils/pointer"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
@@ -44,7 +42,7 @@ type AppReconciler struct {
 }
 
 //+kubebuilder:rbac:groups=infra.yunlizhi.cn,resources=apps,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=infra.yunlizhi.cn,resources=apps/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=infra.yunlizhi.cn,resources=apps/status,verbs=get;list;update;patch
 //+kubebuilder:rbac:groups=infra.yunlizhi.cn,resources=apps/finalizers,verbs=update
 //+kubebuilder:rbac:groups=core,resources=services,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
@@ -161,6 +159,7 @@ func (r *AppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 
 func updateStatus(ctx context.Context, r *AppReconciler, App *infrav1.App) error {
 	log := r.Log.WithValues("func", "updateStatus")
+	App.Status.TotalDomain = App.Spec.Domain
 
 	if err := r.Status().Update(ctx, App); err != nil {
 		log.Error(err, "update instance error")
@@ -186,7 +185,7 @@ func createDeploymentIfNotExists(ctx context.Context, r *AppReconciler, app *inf
 			Name:      app.Name,
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: pointer.Int32Ptr(1),
+			Replicas: app.Spec.Replicas,
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app": app.Spec.Project,
@@ -268,9 +267,8 @@ func createServiceIfNotExists(ctx context.Context, r *AppReconciler, app *infrav
 		},
 		Spec: corev1.ServiceSpec{
 			Ports: []corev1.ServicePort{{
-				Name:       "http",
-				Port:       80,
-				TargetPort: intstr.FromInt(80),
+				Name: "http",
+				Port: *app.Spec.Port,
 			},
 			},
 			Selector: map[string]string{
@@ -296,6 +294,11 @@ func createServiceIfNotExists(ctx context.Context, r *AppReconciler, app *infrav
 	}
 
 	log.Info("create service success")
+	app.Status.TotalDomain = app.Spec.Domain
+	err = r.Status().Update(ctx, service)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
